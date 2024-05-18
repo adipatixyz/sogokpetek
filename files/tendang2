@@ -110,9 +110,9 @@ do
         send-log "${username[$i]}" "$MAX" "${jumlah[$i]}"
 
         if [ $OS -eq 1 ]; then
-            service ssh restart > /dev/null 2>&1;
+            systemctl restart ws > /dev/null 2>&1;
         elif [ $OS -eq 2 ]; then
-            service sshd restart > /dev/null 2>&1;
+            systemctl restart ws > /dev/null 2>&1;
         fi
         
         # Membersihkan variabel yang digunakan
@@ -120,7 +120,7 @@ do
         pid[$i]="";
         j=$((j + 1));
     fi
-    sleep 5
+    sleep 60
 done
 
 # Jika ada pengguna yang lock, lakukan tindakan tambahan
