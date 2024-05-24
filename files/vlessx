@@ -39,6 +39,12 @@ data=( `ls /etc/kyt/limit/vless/ip`);
         if [[ $cekcek -gt $iplimit ]]; then
 exp=$(grep -w "^#& $user" "/etc/xray/config.json" | cut -d ' ' -f 3 | sort | uniq)
 uuid=$(grep -w "^#& $user $exp" -A 1 "/etc/xray/config.json" | awk -F'"' '/"id":/ {print $4}' | sort | uniq)
+if [[ -z $exp || -z $uuid ]]; then
+echo "User $user has an empty expiration or UUID. Restarting the system."
+systemctl restart xray
+sleep 5
+continue
+fi
 echo "### $user $exp" >> /usr/local/sbin/limitxray
 echo "sed -i '/#vless\$/a\\\#& $user $exp\\
 },{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$user\"' /etc/xray/config.json" >> /usr/local/sbin/limitxray
