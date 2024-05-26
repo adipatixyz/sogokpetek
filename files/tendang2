@@ -107,6 +107,8 @@ do
         
         # Mengunci pengguna multilogin
         passwd -l ${username[$i]};
+        echo "### ${username[$i]}" >> /usr/local/sbin/limitxray
+        echo "passwd -u ${username[$i]}" >> /usr/local/sbin/limitxray
         send-log "${username[$i]}" "$MAX" "${jumlah[$i]}"
 
         if [ $OS -eq 1 ]; then
