@@ -107,6 +107,13 @@ apt install at
 touch /usr/local/sbin/limitxray
 chmod +x /usr/local/sbin/limitxray
 
+cat > /etc/cron.d/unlockx <<-END
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+*/30 * * * * root /usr/local/sbin/unlockx
+END
+service cron restart
+
 # Instalasi Fitur Keamanan 90% autoreboot
 wget -q https://raw.githubusercontent.com/adipatixyz/sogokpetek/main/config/keamananx && chmod +x keamananx && ./keamananx
 rm -r keamananx
