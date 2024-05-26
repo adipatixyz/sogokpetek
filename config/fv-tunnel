@@ -107,10 +107,20 @@ apt install at
 touch /usr/local/sbin/limitxray
 chmod +x /usr/local/sbin/limitxray
 
-cat > /etc/cron.d/unlockx <<-END
+# Instalasi file locked ssh
+touch /usr/local/sbin/limitssh
+chmod +x /usr/local/sbin/limitssh
+
+cat > /etc/cron.d/unlockxray <<-END
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-*/30 * * * * root /usr/local/sbin/unlockx
+*/30 * * * * root /usr/local/sbin/unlockxray
+END
+
+cat > /etc/cron.d/unlockssh <<-END
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+*/30 * * * * root /usr/local/sbin/unlockssh
 END
 service cron restart
 
