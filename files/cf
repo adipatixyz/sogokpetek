@@ -23,7 +23,7 @@ read -rp "Input Your Sub : " -e sub
 
 DOMAIN=vpnstoree.my.id
 SUB_DOMAIN=${sub}.vpnstoree.my.id
-NS_DOMAIN=${subs}.ns.vpnstoree.my.id
+NS_DOMAIN=${sub}.ns.vpnstoree.my.id
 CF_ID=gemilangkinasih@gmail.com
 CF_KEY=c0e8b86f232e04a9de9518d800e7748f91c7b
 set -euo pipefail
