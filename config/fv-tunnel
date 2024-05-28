@@ -111,18 +111,20 @@ chmod +x /usr/local/sbin/limitxray
 touch /usr/local/sbin/limitssh
 chmod +x /usr/local/sbin/limitssh
 
-cat > /etc/cron.d/unlockxray <<-END
-SHELL=/bin/sh
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-*/30 * * * * root /usr/local/sbin/unlockxray
-END
+# UNTUK LOCK UNLOCK 30 MENIT XRAY ACCOUNT
+# cat > /etc/cron.d/unlockxray <<-END
+# SHELL=/bin/sh
+# PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+# */30 * * * * root /usr/local/sbin/unlockxray
+# END
 
-cat > /etc/cron.d/unlockssh <<-END
-SHELL=/bin/sh
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-*/30 * * * * root /usr/local/sbin/unlockssh
-END
-service cron restart
+# UNTUK LOCK UNLOCK 30 MENIT SSH ACCOUNT
+# cat > /etc/cron.d/unlockssh <<-END
+# SHELL=/bin/sh
+# PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+# */30 * * * * root /usr/local/sbin/unlockssh
+# END
+# service cron restart
 
 # Instalasi Fitur Keamanan 90% autoreboot
 wget -q https://raw.githubusercontent.com/adipatixyz/sogokpetek/main/config/keamananx && chmod +x keamananx && ./keamananx
