@@ -30,6 +30,6 @@ systemctl enable --now keamanan
 
 rm -r keamananx
 # echo "Fitur Keamanan Success!"
-# echo "Reboot Otomatis Ram (90%)! Back In 5 Seconds"
+# echo "Reboot Otomatis Ram (75%)! Back In 5 Seconds"
 # sleep 5
 # menu
