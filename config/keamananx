@@ -28,7 +28,6 @@ EOF
 systemctl daemon-reload
 systemctl enable --now keamanan
 
-rm -r keamananx
 # echo "Fitur Keamanan Success!"
 # echo "Reboot Otomatis Ram (75%)! Back In 5 Seconds"
 # sleep 5
