@@ -1,6 +1,6 @@
 [Unit]
 Description=Limit Usage Xray Service
-Documentation=https://gmvpn.my.id
+Documentation=https://t.me/gemilangkinasih
 After=syslog.target network-online.target
 
 [Service]

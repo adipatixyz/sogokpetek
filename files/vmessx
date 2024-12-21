@@ -1,12 +1,5 @@
 #!/bin/bash
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# System Request : Debian 9+/Ubuntu 18.04+/20+
-# Develovers » Gemilangkinasih࿐
-# Email      » gemilangpremium@gmail.com
-# telegram   » https://t.me/gemilangkinasih
-# whatsapp   » wa.me/+6287782718065
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Gemilangkinasih࿐
+# https://t.me/gemilangkinasih
 
 clear
 function send_log(){
@@ -15,47 +8,59 @@ KEY=$(grep -E "^#bot# " "/etc/bot/.bot.db" | cut -d ' ' -f 2)
 TIME="10"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
 TEXT="
-<code>☉────────────────────☉</code>
-🧿Notifikasi Multilogin Vmess🧿
-<code>☉────────────────────☉</code>
-<code>Username :</code> <code>$user</code>
-<code>Limit IP :</code> <code>$iplimit</code>
-<code>Login IP :</code> <code>$cekcek</code>
-<code>☉────────────────────☉</code>"
+──────────────────────
+🚫 Notifikasi Multilogin VMESS
+──────────────────────
+<code>User  :</code> <code>$user</code>
+<code>Login :</code> <code>$cekcek</code>
+<code>Limit :</code> <code>$iplimit</code>
+<code>Host  :</code> <code>$domain</code>
+────────────────────── 
+Unlock User Otomatis 15 Menit
+────────────────────── "
 
 curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
 }
 
-#LIMITVMESSIP
 echo -n > /var/log/xray/access.log
 sleep 5
-data=( `ls /etc/kyt/limit/vmess/ip`);
-#Decrypted By YADDY D PHREAKER
-    for user in "${data[@]}"
-    do
+data=( $(cat /etc/xray/config.json | grep '^###' | cut -d ' ' -f 2 | sort | uniq) )
+for user in "${data[@]}"
+do
+    if [ -e "/etc/kyt/limit/vmess/ip/$user" ]; then
         iplimit=$(cat /etc/kyt/limit/vmess/ip/$user)
-        ehh=$(cat /var/log/xray/access.log | grep "$user" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort | uniq);
-        cekcek=$(echo -e "$ehh" | wc -l);
-        if [[ $cekcek -gt $iplimit ]]; then
-exp=$(grep -w "^### $user" "/etc/xray/config.json" | cut -d ' ' -f 3 | sort | uniq)
-uuid=$(grep -w "^### $user $exp" -A 1 "/etc/xray/config.json" | awk -F'"' '/"id":/ {print $4}' | sort | uniq)
-if [[ -z $exp || -z $uuid ]]; then
-echo "User $user has an empty expiration or UUID. Restarting the system."
-systemctl restart xray
-sleep 5
-continue
-fi
-echo "### $user $exp" >> /usr/local/sbin/limitxray
-echo "sed -i '/#vmess\$/a\\\### $user $exp\\
-},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$user\"' /etc/xray/config.json" >> /usr/local/sbin/limitxray
-echo "sed -i '/#vmessgrpc\$/a\\\### $user $exp\\
-},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$user\"' /etc/xray/config.json" >> /usr/local/sbin/limitxray
-sed -i "/^### $user $exp/,/^},{/d" /etc/xray/config.json
-systemctl restart xray
-send_log
-            else
+    else
+        iplimit=2
+        echo "2" > /etc/kyt/limit/vmess/ip/$user
+    fi
+
+    if [ "$iplimit" -eq 0 ]; then
+        iplimit=2
+        echo "2" > /etc/kyt/limit/vmess/ip/$user
+    fi
+
+    ehh=$(cat /var/log/xray/access.log | grep "$user" | cut -d " " -f 3 | sed 's/tcp://g' | cut -d ":" -f 1 | sort | uniq)
+    cekcek=$(echo -e "$ehh" | wc -l)
+
+    echo "Memproses User : [Login: $cekcek, Limit: $iplimit] $user"
+    if [[ $cekcek -gt $iplimit ]]; then
+        exp=$(grep -w "^### $user" "/etc/xray/config.json" | cut -d ' ' -f 3 | sort | uniq)
+        uuid=$(grep -w "^### $user $exp" -A 1 "/etc/xray/config.json" | awk -F'"' '/"id":/ {print $4}' | sort | uniq)
+        if [[ -z $exp || -z $uuid ]]; then
+            echo "User $user memiliki exp atau UUID kosong. Melewati."
             sleep 5
+            continue
         fi
-        sleep 5
-    done
-sleep 60
+        echo "Unlock user $user dalam 15 menit."
+        echo "unlocklimitipbot vmess $user $exp $uuid" | at now + 15 minutes &> /dev/null
+        sed -i "/^### $user $exp/,/^},{/d" /etc/xray/config.json
+        systemctl restart xray
+        send_log "$user" "$cekcek" "$iplimit"
+        echo "User $user terkunci dan notifikasi berhasil dikirim."
+    else
+        echo "User $user masih dalam batas limit."
+    fi
+    echo "Lanjut."
+    sleep 5
+done
+sleep 30

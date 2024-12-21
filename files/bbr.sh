@@ -1,12 +1,5 @@
 #!/bin/bash
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# System Request : Debian 9+/Ubuntu 18.04+/20+
-# Develovers » Gemilangkinasih࿐
-# Email      » gemilangpremium@gmail.com
-# telegram   » https://t.me/gemilangkinasih
-# whatsapp   » wa.me/+6287782718065
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Gemilangkinasih࿐
+# https://t.me/gemilangkinasih
 
 red='\e[1;31m'
 green='\e[0;32m'

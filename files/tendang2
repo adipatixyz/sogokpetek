@@ -1,12 +1,5 @@
 #!/bin/bash
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# System Request : Debian 9+/Ubuntu 18.04+/20+
-# Develovers » Gemilangkinasih࿐
-# Email      » gemilangpremium@gmail.com
-# telegram   » https://t.me/gemilangkinasih
-# whatsapp   » wa.me/+6287782718065
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Gemilangkinasih࿐
+# https://t.me/gemilangkinasih
 
 clear
 function send-log(){
@@ -15,13 +8,16 @@ KEY=$(grep -E "^#bot# " "/etc/bot/.bot.db" | cut -d ' ' -f 2)
 TIME="10"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
 TEXT="
-<code>☉────────────────────☉</code>
-🧿Notifikasi Multilogin SSH🧿
-<code>☉────────────────────☉</code>
-<code>Username :</code> <code>$1</code>
-<code>Limit IP :</code> <code>$2</code>
-<code>Login IP :</code> <code>$3</code>
-<code>☉────────────────────☉</code>"
+──────────────────────
+🚫 Notifikasi Multilogin SSH
+──────────────────────
+<code>User  :</code> <code>$1</code>
+<code>Login :</code> <code>$2 IP</code>
+<code>Limit :</code> <code>$3 IP</code>
+<code>Host  :</code> <code>$domain</code>
+────────────────────── 
+Unlock User Otomatis 15 Menit
+────────────────────── "
 
 curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
 }
@@ -38,97 +34,108 @@ else
     exit 1;
 fi
 
-# Mendapatkan daftar pengguna yang akan dihapus
-cat /etc/passwd | grep "/home/" | cut -d":" -f1 > /root/user.txt
-username1=( `cat "/root/user.txt" `);
-i="0";
-for user in "${username1[@]}"
-do
-    username[$i]=`echo $user | sed 's/'\''//g'`;
-    jumlah[$i]=0;
-    i=$i+1;
-done
-
-# Mengambil informasi pengguna dari file log
-cat $LOG | grep -i dropbear | grep -i "Password auth succeeded" > /tmp/log-db.txt
-proc=( `ps aux | grep -i dropbear | awk '{print $2}'`);
-for PID in "${proc[@]}"
-do
-    cat /tmp/log-db.txt | grep "dropbear\[$PID\]" > /tmp/log-db-pid.txt
-    NUM=`cat /tmp/log-db-pid.txt | wc -l`;
-    USER=`cat /tmp/log-db-pid.txt | awk '{print $10}' | sed 's/'\''//g'`;
-    IP=`cat /tmp/log-db-pid.txt | awk '{print $12}'`;
-    if [ $NUM -eq 1 ]; then
-        i=0;
-        for user1 in "${username[@]}"
-        do
-            if [ "$USER" == "$user1" ]; then
-                jumlah[$i]=`expr ${jumlah[$i]} + 1`;
-                pid[$i]="${pid[$i]} $PID"
-            fi
-            i=$i+1;
-        done
-    fi
-done
-
-cat $LOG | grep -i sshd | grep -i "Accepted password for" > /tmp/log-db.txt
-data=( `ps aux | grep "\[priv\]" | sort -k 72 | awk '{print $2}'`);
-for PID in "${data[@]}"
-do
-    cat /tmp/log-db.txt | grep "sshd\[$PID\]" > /tmp/log-db-pid.txt;
-    NUM=`cat /tmp/log-db-pid.txt | wc -l`;
-    USER=`cat /tmp/log-db-pid.txt | awk '{print $9}'`;
-    IP=`cat /tmp/log-db-pid.txt | awk '{print $11}'`;
-    if [ $NUM -eq 1 ]; then
-        i=0;
-        for user1 in "${username[@]}"
-        do
-            if [ "$USER" == "$user1" ]; then
-                jumlah[$i]=`expr ${jumlah[$i]} + 1`;
-                pid[$i]="${pid[$i]} $PID"
-            fi
-            i=$((i + 1));
-        done
-    fi
-done
-
-# Mengunci pengguna yang melampaui batas jumlah login
-j="0";
-for i in ${!username[*]}
-do
-    MAX=$(cat /etc/kyt/limit/ssh/ip/${username[$i]});
-    # Menetapkan nilai default ke 999 jika nilai tidak valid atau tidak ada
-    if ! [[ $MAX =~ ^[0-9]+$ ]]; then
-        MAX=999
-    fi
-    if [ ${jumlah[$i]} -gt $MAX ]; then
-        date=$(date +"%Y-%m-%d %X");
-        echo "$date - ${username[$i]} - ${jumlah[$i]}";
-        
-        # Mengunci pengguna multilogin
-        passwd -l ${username[$i]};
-        echo "### ${username[$i]}" >> /usr/local/sbin/limitssh
-        echo "passwd -u ${username[$i]}" >> /usr/local/sbin/limitssh
-        send-log "${username[$i]}" "$MAX" "${jumlah[$i]}"
-
-        if [ $OS -eq 1 ]; then
-            systemctl restart ws > /dev/null 2>&1;
-        elif [ $OS -eq 2 ]; then
-            systemctl restart ws > /dev/null 2>&1;
-        fi
-        
-        # Membersihkan variabel yang digunakan
+while true; do
+    echo "Memulai proses monitoring pengguna SSH."
+    # Mendapatkan daftar pengguna
+    cat /etc/passwd | grep "/home/" | cut -d":" -f1 > /root/user.txt
+    username1=( `cat "/root/user.txt" `);
+    i="0";
+    for user in "${username1[@]}"
+    do
+        username[$i]=`echo $user | sed 's/'\''//g'`;
         jumlah[$i]=0;
-        pid[$i]="";
-        j=$((j + 1));
-    fi
-    sleep 60
-done
+        i=$i+1;
+    done
 
-# Jika ada pengguna yang lock, lakukan tindakan tambahan
-if [ $j -gt 0 ]; then
-    # Tindakan tambahan setelah semua pengguna dilock
-    # Misalnya, restart layanan dropbear
-    service dropbear restart > /dev/null 2>&1;
-fi
-sleep 60
+    # Array untuk menyimpan kombinasi unik user dan IP
+    declare -A login_session
+
+    # Memproses pengguna dari file log Dropbear
+    grep -i "Password auth succeeded" "$LOG" | grep -i dropbear > /tmp/log-db.txt
+    for PID in $(ps aux | grep -i dropbear | awk '{print $2}'); do
+        if grep -q "dropbear\[$PID\]" /tmp/log-db.txt; then
+            USER=$(grep "dropbear\[$PID\]" /tmp/log-db.txt | awk '{print $10}' | sed 's/'\''//g')
+            IP=$(grep "dropbear\[$PID\]" /tmp/log-db.txt | awk '{print $12}')
+
+            if [[ -z "${login_session[$USER-$IP]}" ]]; then
+                for i in "${!username[@]}"; do
+                    if [[ "${username[$i]}" == "$USER" ]]; then
+                        jumlah[$i]=$((jumlah[$i] + 1))
+                        pid[$i]+="$PID "
+                    fi
+                done
+                login_session["$USER-$IP"]=1
+            fi
+        fi
+    done
+
+    # Memproses pengguna dari file log SSHD
+    grep -i "Accepted password for" "$LOG" | grep -i sshd > /tmp/log-db.txt
+    for PID in $(ps aux | grep "\[priv\]" | awk '{print $2}'); do
+        if grep -q "sshd\[$PID\]" /tmp/log-db.txt; then
+            USER=$(grep "sshd\[$PID\]" /tmp/log-db.txt | awk '{print $9}')
+            IP=$(grep "sshd\[$PID\]" /tmp/log-db.txt | awk '{print $11}')
+
+            if [[ -z "${login_session[$USER-$IP]}" ]]; then
+                for i in "${!username[@]}"; do
+                    if [[ "${username[$i]}" == "$USER" ]]; then
+                        jumlah[$i]=$((jumlah[$i] + 1))
+                        pid[$i]+="$PID "
+                    fi
+                done
+                login_session["$USER-$IP"]=1
+            fi
+        fi
+    done
+
+    for i in ${!username[*]}
+    do
+        if [ -e "/etc/kyt/limit/ssh/ip/${username[$i]}" ]; then
+            LIMIT=$(cat /etc/kyt/limit/ssh/ip/${username[$i]})
+            MAX=$((LIMIT + 1))
+        else
+            MAX=2
+            echo "2" > /etc/kyt/limit/ssh/ip/${username[$i]}
+        fi
+
+        if [ "$MAX" -eq 0 ]; then
+            MAX=2
+            echo "2" > /etc/kyt/limit/ssh/ip/${username[$i]}
+        fi
+
+        STATUS=$(passwd -S ${username[$i]} | awk '{print $2}')
+        if [ "$STATUS" == "L" ]; then
+        echo "User ${username[$i]} terkunci, melewati proses."
+        continue
+        fi
+
+        echo "Memproses User : [Login: ${jumlah[$i]}, Limit: $MAX] ${username[$i]}"
+        if [ ${jumlah[$i]} -gt $MAX ]; then
+            echo "User ${username[$i]} melebihi batas login, mengunci akun."
+            passwd -l ${username[$i]};
+            echo "unlocklimitipbot ssh ${username[$i]}" | at now + 15 minutes &> /dev/null
+            send_log "${username[$i]}" "${jumlah[$i]}" "$((MAX - 1))"
+            echo "Notifikasi terkirim ke telegram."
+
+            if [ ${jumlah[$i]} -gt 5 ]; then
+            truncate -s 0 /var/log/auth.log
+            systemctl restart ssh > /dev/null 2>&1;
+            systemctl restart sshd > /dev/null 2>&1;
+            # systemctl restart ws > /dev/null 2>&1;
+            fi
+
+            if [ $OS -eq 1 ]; then
+                systemctl restart ssh > /dev/null 2>&1;
+            elif [ $OS -eq 2 ]; then
+                systemctl restart sshd > /dev/null 2>&1;
+            fi
+
+            jumlah[$i]=0;
+            pid[$i]="";
+        fi
+        sleep 2
+    done
+
+    echo "Siklus monitoring selesai. Menunggu 30 detik sebelum memulai ulang."
+    sleep 30
+done

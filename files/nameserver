@@ -1,17 +1,10 @@
 #!/bin/bash
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# System Request : Debian 9+/Ubuntu 18.04+/20+
-# Develovers » Gemilangkinasih࿐
-# Email      » gemilangpremium@gmail.com
-# telegram   » https://t.me/gemilangkinasih
-# whatsapp   » wa.me/+6287782718065
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Gemilangkinasih࿐
+# https://t.me/gemilangkinasih
 
 #!/bin/bash
 nsdomain=$(cat /etc/xray/nsdomain)
 cd
-echo "Port 2222" >> /etc/ssh/sshd_config
+echo "Port 2296" >> /etc/ssh/sshd_config
 echo "Port 2269" >> /etc/ssh/sshd_config
 sed -i 's/#AllowTcpForwarding yes/AllowTcpForwarding yes/g' /etc/ssh/sshd_config
 service ssh restart
@@ -71,7 +64,6 @@ END
 #permission service slowdns
 cd
 chmod +x /etc/systemd/system/client-sldns.service
-
 chmod +x /etc/systemd/system/server-sldns.service
 pkill sldns-server
 pkill sldns-client
