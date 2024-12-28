@@ -13,6 +13,9 @@
 Port 22
 Port 2222
 Port 2223
+Port 6401
+Port 2268
+Port 2269
 #AddressFamily any
 #ListenAddress 0.0.0.0
 #ListenAddress ::
