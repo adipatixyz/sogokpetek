@@ -9,7 +9,7 @@ fram=$(free -m | awk 'NR==2 {print $4}')
 usage_percentage=$(( (uram * 100) / tram ))
 
 # Ambang batas persentase penggunaan RAM untuk reboot
-threshold=75
+threshold=80
 
 # Cek apakah persentase penggunaan RAM melebihi ambang batas
 if [ $usage_percentage -ge $threshold ]; then
