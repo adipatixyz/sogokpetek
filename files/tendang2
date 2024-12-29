@@ -109,7 +109,7 @@ while true; do
         continue
         fi
 
-        echo "Memproses User : [Login: ${jumlah[$i]}, Limit: $MAX] ${username[$i]}"
+        echo "Memproses User : [Login: ${jumlah[$i]}, Limit: $((MAX - 1))] ${username[$i]}"
         if [ ${jumlah[$i]} -gt $MAX ]; then
             echo "User ${username[$i]} melebihi batas login, mengunci akun."
             passwd -l ${username[$i]};
