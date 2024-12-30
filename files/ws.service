@@ -1,5 +1,5 @@
 [Unit]
-Description=WebSocket
+Description=Python WebSocket Proxy
 Documentation=https://t.me/gemilangkinasih
 After=syslog.target network-online.target
 
