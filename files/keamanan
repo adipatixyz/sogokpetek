@@ -32,31 +32,31 @@ swap_used=$(free -m | awk '/Swap:/ {print $3}')
 swap_usage=$(awk "BEGIN {printf \"%.2f\", ($swap_used/$swap_total)*100}")
 
 # Threshold untuk peringatan
-setmax=90
+setmax=95
 
 # Logika untuk mengecek kondisi dan mengirim notifikasi
 if (( $(echo "$cpu_usage >= $setmax" | bc -l) )); then
     echo "Warning: CPU usage is high ($cpu_usage%)"
     send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
     sleep 10
-    reboot
+    # reboot
 elif (( disk_usage >= $setmax )); then
     echo "Warning: Disk usage is high ($disk_usage%)"
     send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
     sleep 10
-    reboot
+    # reboot
 elif (( ram_usage >= $setmax )); then
     echo "Warning: RAM usage is high ($ram_usage%)"
     send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
     sleep 10
-    reboot
+    # reboot
 elif (( $(echo "$swap_usage >= $setmax" | bc -l) )); then
     echo "Warning: Swap usage is high ($swap_usage%)"
     send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
     sleep 10
-    reboot
+    # reboot
 else
     echo "System OK: RAM=${ram_usage}%, Disk=${disk_usage}%, CPU=${cpu_usage}%, Swap=${swap_usage}%"
-    sleep 30
+    sleep 60
 fi
-sleep 30
+sleep 60
