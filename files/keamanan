@@ -1,24 +1,62 @@
 #!/bin/bash
 
-# Mengambil total RAM, RAM yang digunakan, dan RAM yang tersedia
-tram=$(free -m | awk 'NR==2 {print $2}')
-uram=$(free -m | awk 'NR==2 {print $3}')
-fram=$(free -m | awk 'NR==2 {print $4}')
+# Fungsi untuk mengirim notifikasi ke Telegram
+function send_log(){
+domain=$(cat /etc/xray/domain)
+CHATID=$(cat /root/telebotvpn/idtelegrub)
+KEY=$(cat /root/telebotvpn/tokentelebot)
+TIME="10"
+URL="https://api.telegram.org/bot$KEY/sendMessage"
+TEXT="
+──────────────────────
+🚫 Notifikasi Warning Server
+──────────────────────
+<code>RAM  :</code> <code>$1%</code>
+<code>CPU  :</code> <code>$2%</code>
+<code>Disk :</code> <code>$3%</code>
+<code>Swap :</code> <code>$4%</code>
+<code>Host :</code> <code>$domain</code>
+──────────────────────
+Login Server Untuk Monitoring
+──────────────────────"
 
-# Menghitung persentase RAM yang digunakan
-usage_percentage=$(( (uram * 100) / tram ))
+curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
+}
 
-# Ambang batas persentase penggunaan RAM untuk reboot
-threshold=80
+# Mengambil informasi penggunaan CPU, RAM, Disk, dan Swap
+cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}')
+disk_usage=$(df -h / | awk '/\// {print $5}' | sed 's/%//')
+ram_usage=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
+swap_total=$(free -m | awk '/Swap:/ {print $2}')
+swap_used=$(free -m | awk '/Swap:/ {print $3}')
+swap_usage=$(awk "BEGIN {printf \"%.2f\", ($swap_used/$swap_total)*100}")
 
-# Cek apakah persentase penggunaan RAM melebihi ambang batas
-if [ $usage_percentage -ge $threshold ]; then
-    echo "Penggunaan RAM ($usage_percentage%) melebihi ambang batas ($threshold%)"
-    echo "Menjalankan reboot..."
-    # Perintah reboot
+# Threshold untuk peringatan
+setmax=90
+
+# Logika untuk mengecek kondisi dan mengirim notifikasi
+if (( $(echo "$cpu_usage >= $setmax" | bc -l) )); then
+    echo "Warning: CPU usage is high ($cpu_usage%)"
+    send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
+    sleep 10
+    reboot
+elif (( disk_usage >= $setmax )); then
+    echo "Warning: Disk usage is high ($disk_usage%)"
+    send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
+    sleep 10
+    reboot
+elif (( ram_usage >= $setmax )); then
+    echo "Warning: RAM usage is high ($ram_usage%)"
+    send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
+    sleep 10
+    reboot
+elif (( $(echo "$swap_usage >= $setmax" | bc -l) )); then
+    echo "Warning: Swap usage is high ($swap_usage%)"
+    send_log "$ram_usage" "$cpu_usage" "$disk_usage" "$swap_usage"
+    sleep 10
     reboot
 else
-    echo "Penggunaan RAM ($usage_percentage%) masih di bawah ambang batas ($threshold%)"
+    echo "System OK: RAM=${ram_usage}%, Disk=${disk_usage}%, CPU=${cpu_usage}%, Swap=${swap_usage}%"
+    sleep 30
 fi
-
-sleep 60
+sleep 30
