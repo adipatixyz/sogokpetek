@@ -30,7 +30,7 @@ disk_usage=$(df -h / | awk '/\// {print $5}' | sed 's/%//')
 setmax=95
 
 # Logika untuk mengecek kondisi dan mengirim notifikasi
-elif (( ram_usage >= $setmax )); then
+if (( ram_usage >= $setmax )); then
     echo "Warning: RAM usage is high ($ram_usage%)"
     send_log "$ram_usage" "$disk_usage"
     sleep 10
